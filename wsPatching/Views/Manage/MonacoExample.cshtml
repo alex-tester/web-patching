@@ -1,0 +1,186 @@
+﻿
+@{
+    bool showManageButton = false;
+
+    if (User.IsInRole("admin") || User.IsInRole("qaadmin"))
+    {
+        showManageButton = true;
+    }
+}
+
+<style type="text/css">
+
+
+    .modal-lg {
+        max-width: 1200px;
+    }
+</style>
+@*<link rel=stylesheet data-name="vs/editor/editor.main" href="@Url.Content("~/assets-external/Monaco/vs/editor/editor.main.css")">
+    <script src="@Url.Content("~/assets-external/Monaco/vs/loader.js")"></script>
+    <script src="@Url.Content("~/assets-external/Monaco/vs/basic-languages/powershell/powershell.js")"></script>*@
+
+<div class="block bg-body shadow-none">
+    <div id="div_btnBackToQaQueue" class="form-group form-row">
+        <div class="col-lg-2">
+
+            <button class="btn btn-sm btn-outline-primary" onclick="BackToQaQueue()"><i class="fa fa-arrow-circle-left mr-1"></i>Back to QA Queue</button>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="block block-bordered">
+    <div class="block-header">
+        <h3 class="block-title text-primary"><i class="fa fa-code"></i> Checklist Scripts</h3>
+        <div class="block-options">
+            @if (showManageButton)
+            {
+                <button type="button" class="btn btn-sm btn-outline-primary" onclick="UniversalLoadPageBody('_QaChecklistScriptEditor', 'Report', true, 0);"><i class="fa fa-plus-square mr-1"></i>Add Script</button>
+            }
+            <div class="timeline-event-time block-options-item font-size-sm font-w600">
+
+            </div>
+        </div>
+    </div>
+    <div class="block-content">
+        <table id="qaScriptTable" class="table table-sm table-striped table-vcenter js-dataTable-full">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Script Type</th>
+                    <th>Script Name</th>
+
+                    <th>Description</th>
+                    <th style="text-align: center">Auto Pass</th>
+
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var s in Model)
+                {
+                    <tr>
+
+                        <td width="5%">
+                            <img src="@Url.Content("~/assets-ccf/images/scriptlogos/" + s.ScriptType.ScriptTypeName + ".png")" style="width:32px" alt="@s.ScriptType.ScriptTypeName" title="@s.ScriptType.ScriptTypeName" />
+                        </td>
+                        <td width="20%">@s.ScriptName</td>
+                        <td width="35%">
+                            @if (s.ScriptDescription != null)
+                            {@Html.Raw(s.ScriptDescription.Replace("\r\n", "<br />").Replace("\n", "<br />"))}
+                    </td>
+                    <td width="10%" align="center">
+
+                        @if (s.AutoPass)
+                        {
+                            <input type="checkbox" data-defaultValue="@s.AutoPass" id="cbAvailable_@(s.CheckListScriptId.ToString())" checked="checked" disabled="disabled" />
+                        }
+                        else
+                        {
+                            <input type="checkbox" data-defaultValue="@s.AutoPass" id="cbAvailable_@(s.CheckListScriptId.ToString())" disabled="disabled" />
+                        }
+                    </td>
+
+                    <td width="30%" align="right">
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="ShowQaChecklistModal(@s.CheckListScriptId);"><i class="fa fa-edit mr-1"></i>View Script</button>
+                        @if (showManageButton)
+                        {
+                            @*<button type="button" class="btn btn-sm btn-outline-primary" onclick="ShowPopUpEditor('_QaChecklistScriptEditor','Report','@s.CheckListScriptId','Edit Checklist Script','','ProcessQaChecklistScript()');"><i class="fa fa-edit mr-1"></i>Edit</button>*@
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="UniversalLoadPageBody('_QaChecklistScriptEditor', 'Report', true, @s.CheckListScriptId);"><i class="fa fa-edit mr-1"></i>Edit</button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="ShowPopUpDelete('DeleteQaChecklistScript','Report','@s.CheckListScriptId','@s.ScriptName', '_QaChecklistScript', '');"><i class="fa fa-trash mr-1"></i>Delete</button>
+                        }
+
+                    </td>
+                </tr>
+            }
+            </tbody>
+
+        </table>
+    </div>
+</div>
+
+
+@foreach (var s in Model)
+{
+    <div class="modal fade modal-block-large" id="scriptModal_@s.CheckListScriptId" tabindex="-1" role="dialog" aria-labelledby="modal-block-vcenter" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-popin modal-lg">
+            <div class="modal-content" @*style="height:500px;"*@>
+                <div class="block block-themed block-transparent mb-0">
+                    <div id="ModalHeader_@s.CheckListScriptId" class="block-header bg-secondary">
+                        <h3 id="scriptModalTitleText_@s.CheckListScriptId" class="block-title">@s.ScriptName</h3>
+                        <div class="block-options">
+                            <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
+                                <i class="fa fa-fw fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="div_ScriptViewer_@s.CheckListScriptId" class="" style="height:500px;width:1200px">
+                    </div>
+                </div>
+                @*<div id="scriptModalFooter_@s.CheckListScriptId" class="block-content block-content-full text-right border-top">
+
+                        <a id="scriptModalGreenBtn_@s.CheckListScriptId" class="btn btn-sm btn-outline-primary" onclick="CloseScriptModal(@s.CheckListScriptId);"><i class="fa fa-check-circle"></i> Close</a>
+                    </div>*@
+            </div>
+        </div>
+    </div>
+}
+
+
+
+
+<script>
+    $(document).ready(function () {
+        $('#qaScriptTable').dataTable({
+            "order": [[1, "asc"]]
+        });
+    });
+
+    function ShowQaChecklistModal(id) {
+
+
+
+        modal = $('#scriptModal_' + id);
+
+        $(modal).modal({
+            backdrop: 'static',
+            keyboard: true
+        });
+
+        //monaco only seems to work when the element is visible on page
+        $(modal).modal('show');
+
+        if ($('#div_ScriptViewer_' + id).val() != "init") {
+
+            require.config({ paths: { 'vs': '../assets-external/Monaco/vs' } });
+            var data = { id: id };
+            var url = getActionURL("_GetQaChecklistScript", "Report");
+            var jqxhr = $.post(url, data)
+                .done(function (result) {
+                    var qaScript = result.script;
+                    require(['vs/editor/editor.main'], function () {
+                        window.editor = monaco.editor.create(document.getElementById('div_ScriptViewer_' + id), {
+                            value: qaScript,
+                            language: 'powershell',
+                            theme: 'vs-dark',
+                            minimap: {
+                                enabled: false
+                            },
+                            readOnly: true,
+                            automaticLayout: true,
+                            scrollBeyondLastLine: false
+
+                        });
+                    });
+                })
+
+            $('#div_ScriptViewer_' + id).val("init");
+        }
+
+    }
+
+
+
+</script>

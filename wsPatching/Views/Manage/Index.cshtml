@@ -1,0 +1,84 @@
+﻿
+@{
+
+    ViewBag.Title = "Manage";
+    Layout = "~/Views/Shared/_ManageLayout.cshtml";
+
+}
+
+
+
+
+<div class="bg-body-light">
+    <div class="content content-full">
+        <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
+            <h1 class="flex-sm-fill h3 my-2" id="div_StatusTitle">
+                Manage Patching <small id="div_StatusDescription" class="d-block d-sm-inline-block mt-2 mt-sm-0 font-size-base font-w400 text-muted">  Click on the blocks below for more info about each value.</small>
+            </h1>
+
+            <ol class="breadcrumb breadcrumb-alt">
+                <li class="breadcrumb-item">
+                    <a class="link-fx" href="@Url.Action("Index", "Home")">Home</a>
+                </li>
+                @*<li class="breadcrumb-item">
+                        <a class="link-fx" href="@Url.Action("Index", "SystemStatus")">System Status</a>
+                    </li>*@
+
+                @*<li class="breadcrumb-item" aria-current="page">
+                        <select class="breadcrumb-item breadcrumb-select" id="myViewSelector" name="myViewSelector">
+                            <option value="_VMware">VMware</option>
+
+                        </select>
+
+                    </li>*@
+
+            </ol>
+
+
+        </div>
+        <div class="form-group form-row">
+            @*<div class="col-lg-2">
+
+                    <button type="button" id="btnRDP" class="form-control btn btn-sm btn-outline-primary" onclick="location.href='@Url.Action("GenerateRDPFile", "Server", new { Hostname = Model.HostName })'"><i class="fa fa-desktop"></i> Remote Desktop</button>
+                </div>*@
+        </div>
+    </div>
+</div>
+<div id="btns_nav">
+    <div class="form-group form-row">
+        <div class="col-lg-2">
+            <button type="button" id="btnPatching" class="form-control btn btn-sm btn-outline-primary" onclick="Javascript:LoadPageBody('_PatchingSchedule', 'SystemStatus', false, 0)"><i class="fa fa-desktop"></i> Patching Calendar</button>
+        </div>
+        <div class="col-lg-2">
+            <button type="button" id="btnCreateSchedule" class="form-control btn btn-sm btn-outline-primary" onclick="@Url.Action("Index", "Manage", new { id = "0" } )"><i class="fa fa-calendar-alt"></i> Add New Schedule</button>
+        </div>
+        <div class="col-lg-2">
+            <button type="button" id="btnk8ssummary" class="form-control btn btn-sm btn-outline-primary" onclick="Javascript:LoadPageBody('_Kubernetes', 'SystemStatus', false, 0)"><i class="fa fa-desktop"></i> Kubernetes</button>
+        </div>
+    </div>
+
+</div>
+        </div>
+<div id="pageBody">
+    <h2>Manage Standards Framework</h2>
+    <br />
+    <br />
+    <div class="row">
+        <div class="col-lg-3">
+            <p>Manage Standards Infrastucture.  Click on the links below.</p>
+            <a href="@Url.Action("Schedule", "Manage")">
+                Manage Schedules
+            </a>
+            <br />
+        </div>
+        <div class="col-lg-3">
+
+        </div>
+    </div>
+
+
+    <br />
+
+    <br />
+    <br />
+</div>

@@ -1,0 +1,294 @@
+﻿@using wsPatching.Models.DatabaseModels
+@model wsPatching.Models.CustomModels.PatchingScheduleEdit
+@{
+
+    List<SelectListItem> patchingSourceList = ((List<PatchingSource>)ViewBag.patchSources).Select(x => new SelectListItem { Text = x.PatchingSource1, Value = x.Id.ToString() }).ToList();
+
+    //List<SelectListItem> serverList = ((List<ServerObject>)ViewBag.serverList).Select(x => new SelectListItem { Text = x.Hostname, Value = x.Id.ToString() }).ToList();
+
+    List<SelectListItem> serverListEmpty = new List<SelectListItem>();
+    serverListEmpty.Add(new SelectListItem() { Text = "", Value = "" });
+    List<SelectListItem> patchingRecurrence = new List<SelectListItem>();
+    patchingRecurrence.Add(new SelectListItem() { Value = "hourly", Text = "Hourly" });
+    patchingRecurrence.Add(new SelectListItem() { Value = "daily", Text = "Daily" });
+    patchingRecurrence.Add(new SelectListItem() { Value = "weekly", Text = "Weekly" });
+    patchingRecurrence.Add(new SelectListItem() { Value = "monthly", Text = "Monthly" });
+
+
+    List<SelectListItem> daysOfWeek = new List<SelectListItem>();
+    daysOfWeek.Add(new SelectListItem() { Value = "Monday", Text = "Monday" });
+    daysOfWeek.Add(new SelectListItem() { Value = "Tuesday", Text = "Tuesday" });
+    daysOfWeek.Add(new SelectListItem() { Value = "Wednesday", Text = "Wednesday" });
+    daysOfWeek.Add(new SelectListItem() { Value = "Thursday", Text = "Thursday" });
+    daysOfWeek.Add(new SelectListItem() { Value = "Friday", Text = "Friday" });
+    daysOfWeek.Add(new SelectListItem() { Value = "Saturday", Text = "Saturday" });
+    daysOfWeek.Add(new SelectListItem() { Value = "Sunday", Text = "Sunday" });
+
+    List<SelectListItem> weeksOfMonth = new List<SelectListItem>();
+    weeksOfMonth.Add(new SelectListItem() { Value = "1", Text = "First" });
+    weeksOfMonth.Add(new SelectListItem() { Value = "2", Text = "Second" });
+    weeksOfMonth.Add(new SelectListItem() { Value = "3", Text = "Third" });
+    weeksOfMonth.Add(new SelectListItem() { Value = "4", Text = "Fourth" });
+    weeksOfMonth.Add(new SelectListItem() { Value = "5", Text = "Last" });
+
+    bool isNewPatchingConfig = @Model.PatchingID == 0;
+
+
+}
+@*<link rel="stylesheet" href="@Url.Content("~/assets/js/plugins/bootstrap-datetimepicker/bootstrap-datetimepicker.css")">
+<script src="@Url.Content("~/assets/js/plugins/moment/moment.min.js")"></script>
+<script src="@Url.Content("~/assets/js/plugins/bootstrap-datetimepicker/bootstrap-datetimepicker.js")"></script>*@
+
+
+<form id="frmEditor" class="js-validation" method="POST">
+
+    <div class="block-content">
+
+        <input type="hidden" id="PatchingID" name="PatchingID" value="@Model.PatchingID" />
+
+        @*NEED TO SET THIS TO DISABLED IF WE HAVE AN ACTUAL OBJECT ID*@
+        @*@Html.EditorFor(x => x.ObjectID, "_FieldEditor", "ObjectID", new { FieldType = "Dropdown", FieldLabel = "Server", Required = true, showHelp = true, helpMessage = "Select the server", List = serverList })
+
+            <select class="form-control js-select2" id="ObjectId"></select>*@
+
+        @if (isNewPatchingConfig)
+        {
+            <div class="form-group row" id="div_ObjectId">
+                <label class="col-sm-4 col-form-label" for=ObjectId>
+
+                    Host Name &nbsp&nbsp<i id="req_ObjectId" class="fa fa-xs fa-asterisk text-primary"></i>
+                    <span>&nbsp;&nbsp;</span><i id="help_ObjectId" class="fa fa-xs fa-question-circle text-black obs-info-icon" data-toggle="popover" data-trigger="hover" data-placement="right" data-html="true" data-animation="true" data-content="@Html.Raw("The server must be provisioned by the patching script before it will exist in this list")"></i>
+                </label>
+                <div class="col-sm-7">
+
+                    <select class="form-control js-select2" id="ObjectId" name="ObjectId" required data-placeholder="Select a server">
+                        <option></option>
+
+                    </select>
+
+                </div>
+            </div>
+        }
+        else
+        {
+            <input type="hidden" id="ObjectId" name="ObjectId" value="@Model.ObjectID" />
+            @Html.EditorFor(x => x.HostName, "_FieldEditor", "HostName", new { FieldType = "Textbox", FieldLabel = "Host Name", Required = false, showHelp = false, helpMessage = "", RegExp = "", MaxLength = 50, FieldDisabled = true })
+        }
+
+        @Html.EditorFor(x => x.PatchingSourceID, "_FieldEditor", "PatchingSourceID", new { FieldType = "Dropdown", FieldLabel = "Patching Source", Required = true, showHelp = true, helpMessage = "Select the tool used for Patch Management", List = patchingSourceList })
+
+
+
+        @Html.EditorFor(x => x.StartTime, "_FieldEditor", "StartTime", new { FieldType = "DateTimePicker", FieldLabel = "Start Time", Required = true, showHelp = false, helpMessage = "", RegExp = "", MaxLength = 50 })
+
+        @Html.EditorFor(x => x.EndTime, "_FieldEditor", "EndTime", new { FieldType = "DateTimePicker", FieldLabel = "End Time", Required = true, showHelp = false, helpMessage = "", RegExp = "", MaxLength = 50 })
+
+        @Html.EditorFor(x => x.Frequency, "_FieldEditor", "Frequency", new { FieldType = "Dropdown", FieldLabel = "Frequency", Required = true, showHelp = false, helpMessage = "", List = patchingRecurrence })
+
+        @Html.EditorFor(x => x.HourlyRecurrence, "_FieldEditor", "HourlyRecurrence", new { FieldType = "Textbox", FieldLabel = "Hours Between Occurrences", Required = false, showHelp = true, helpMessage = "Enter the number of hours between each patch cycle", RegExp = "", MaxLength = 2, HideField = true })
+
+        @Html.EditorFor(x => x.DailyRecurrence, "_FieldEditor", "DailyRecurrence", new { FieldType = "Textbox", FieldLabel = "Days Between Occurrences", Required = false, showHelp = true, helpMessage = "Enter the number of days between each patch cycle", RegExp = "", MaxLength = 3, HideField = true })
+
+
+
+        @Html.EditorFor(x => x.WeeklyRecurrence, "_FieldEditor", "WeeklyRecurrence", new { FieldType = "Textbox", FieldLabel = "Weeks Between Occurrences", Required = false, showHelp = true, helpMessage = "Enter the number of weeks between each patch cycle", RegExp = "", MaxLength = 2, HideField = true })
+
+        @Html.EditorFor(x => x.WeekNumber, "_FieldEditor", "WeekNumber", new { FieldType = "Dropdown", FieldLabel = "Week of Month", Required = false, showHelp = true, helpMessage = "Select the week of the month", List = weeksOfMonth, HideField = true })
+
+        @Html.EditorFor(x => x.WeekDay, "_FieldEditor", "WeekDay", new { FieldType = "Dropdown", FieldLabel = "Day of Week", Required = false, showHelp = true, helpMessage = "Select the day of the week", List = daysOfWeek, HideField = true })
+
+        @Html.EditorFor(x => x.RebootBeforePatch, "_FieldEditor", "RebootBeforePatch", new { FieldType = "CheckBox", FieldLabel = "Reboot Before", Required = false, showHelp = true, helpMessage = "Reboot server before beginning patch installation" })
+
+        @Html.EditorFor(x => x.RebootAfterPatch, "_FieldEditor", "RebootAfterPatch", new { FieldType = "CheckBox", FieldLabel = "Reboot After", showHelp = true, helpMessage = "Only reboot server if patches require restart to complete installation" })
+
+        @Html.EditorFor(x => x.ForceRebootAfterPatch, "_FieldEditor", "ForceRebootAfterPatch", new { FieldType = "CheckBox", FieldLabel = "Force Reboot After", showHelp = true, helpMessage = "Always reboot server after completing patch installation" })
+
+        @Html.EditorFor(x => x.EnableSecondAttempt, "_FieldEditor", "EnableSecondAttempt", new { FieldType = "CheckBox", FieldLabel = "Second Attempt", showHelp = true, helpMessage = "Attempts to install patches a second time in case any were missed due to prerequisites or pending reboot", })
+
+        @Html.EditorFor(x => x.UpdateVmwareTools, "_FieldEditor", "UpdateVmwareTools", new { FieldType = "CheckBox", FieldLabel = "VMware Tools", showHelp = true, helpMessage = "Install the latest version of VMware Tools if the server is a VM. This option is currently disabled" })
+
+        @Html.EditorFor(x => x.TempDisablePatch, "_FieldEditor", "TempDisablePatch", new { FieldType = "CheckBox", FieldLabel = "Disable Patching", showHelp = true, helpMessage = "Disable the existing patch schedule from executing" })
+
+        @Html.EditorFor(x => x.EnablePrePatchScript, "_FieldEditor", "EnablePrePatchScript", new { FieldType = "CheckBox", FieldLabel = "Pre Patch Script", showHelp = true, helpMessage = "Execute a PowerShell script before beginning patch installation" })
+
+        @Html.EditorFor(x => x.PrePatchScript, "_FieldEditor", "PrePatchScript", new { FieldType = "TextArea", FieldLabel = "PowerShell Script", Required = false, showHelp = false, helpMessage = "", Rows = "10", FieldWidth = "9", MaxLength = "5000", HideField = true })
+
+        @Html.EditorFor(x => x.EnablePostPatchScript, "_FieldEditor", "EnablePostPatchScript", new { FieldType = "CheckBox", FieldLabel = "Post Patch Script", showHelp = true, helpMessage = "Execute a PowerShell script after completing patch installation" })
+
+        @Html.EditorFor(x => x.PostPatchScript, "_FieldEditor", "PostPatchScript", new { FieldType = "TextArea", FieldLabel = "PowerShell Script", Required = false, showHelp = false, helpMessage = "", Rows = "10", FieldWidth = "9", MaxLength = "5000", HideField = true })
+
+
+    </div>
+
+</form>
+
+<div id="validationFailure" class="invalid-feedback animated fadeIn text-right offset-sm-3 col-sm-7" style="display: none;"></div>
+
+<script>
+
+             function LoadServersList() {
+
+            $.ajax({
+
+                type: "GET",
+
+                async: false,
+
+                cache: true,
+
+                url: getActionURL("GetAllServers", "Manage"),
+
+                dataType: "json",
+
+                success: function (obj) {
+                    //debugger;
+                    InitLargeSelect2DDL(obj, 'ObjectId', 50);
+                }
+
+            });
+
+
+
+
+    }
+
+
+//}
+//    function InitScriptEditor(fieldName, readOnly) {
+
+//        window.editor = monaco.editor.create(document.getElementById(fieldName), {
+//            value: "hmm",
+//            language: 'powershell',
+//            theme: 'vs-dark',
+//            minimap: {
+//                enabled: false
+//            },
+//            readOnly: readOnly,
+//            automaticLayout: true,
+//            scrollBeyondLastLine: false
+
+//        });
+   
+
+//}
+
+
+    $(document).ready(function () {
+
+        var newConfig = '@isNewPatchingConfig';
+
+        $("#frmEditor").submit(function (e) {
+            e.preventDefault();
+        });
+        if (newConfig == "True") {
+            LoadServersList();
+        }
+        //InitLargeSelect2DDL(, 'ObjectId', 50);
+
+        initValidationHorizontal();
+
+        initializeFields();
+
+        //InitScriptEditor('ScriptEditor', false);
+
+        $('#Frequency').on('change', function () {
+            frequencyToggle();
+        });
+
+        $('#EnablePostPatchScript').change(function () {
+            if ($(this).is(":checked")) {
+
+                makeFieldRequired('PostPatchScript', true);
+            }
+            else {
+                makeFieldNotRequired('PostPatchScript', true, true);
+            }
+        });
+
+        $('#EnablePrePatchScript').change(function () {
+            if ($(this).is(":checked")) {
+
+                makeFieldRequired('PrePatchScript', true);
+            }
+            else {
+                makeFieldNotRequired('PrePatchScript', true, true);
+            }
+        });
+
+        function initializeFields() {
+            frequencyToggle();
+
+            if ($("#EnablePostPatchScript").prop("checked")) {
+                makeFieldRequired('PostPatchScript', true);
+            }
+            if ($("#EnablePrePatchScript").prop("checked")) {
+                makeFieldRequired('PrePatchScript', true);;
+            }
+        }
+        function frequencyToggle() {
+
+            switch ($('#Frequency').val().toLowerCase()) {
+                case "hourly":
+                    makeFieldNotRequired('DailyRecurrence', true, true);
+                    //makeFieldNotRequired('RecurEveryWeekday', true, true);
+                    makeFieldNotRequired('WeeklyRecurrence', true, true);
+                    makeFieldNotRequired('WeekDay', true, true);
+                    makeFieldNotRequired('WeekNumber', true, true);
+
+                    makeFieldRequired('HourlyRecurrence', true);
+                    break;
+
+                case "daily":
+                    makeFieldNotRequired('HourlyRecurrence', true, true);
+                    makeFieldNotRequired('WeeklyRecurrence', true, true);
+                    makeFieldNotRequired('WeekDay', true, true);
+                    makeFieldNotRequired('WeekNumber', true, true);
+
+                    makeFieldRequired('DailyRecurrence', true);
+                    //makeFieldRequired('RecurEveryWeekday', true);
+                    break;
+
+                case "weekly":
+                    makeFieldNotRequired('HourlyRecurrence', true, true);
+                    makeFieldNotRequired('DailyRecurrence', true, true);
+                    //makeFieldNotRequired('RecurEveryWeekday', true, true);
+                    makeFieldNotRequired('WeekNumber', true, true);
+
+                    makeFieldRequired('WeeklyRecurrence', true);
+                    makeFieldRequired('WeekDay', true);
+                    $('#WeekDay').select2();
+                    break;
+
+                case "monthly":
+                    makeFieldNotRequired('HourlyRecurrence', true, true);
+                    makeFieldNotRequired('DailyRecurrence', true, true);
+                    //makeFieldNotRequired('RecurEveryWeekday', true, true);
+                    makeFieldNotRequired('WeeklyRecurrence', true, true);
+
+                    makeFieldRequired('WeekNumber', true);
+                    makeFieldRequired('WeekDay', true);
+                    $('#WeekDay').select2();
+                    $('#WeekNumber').select2();
+                    break;
+
+                //case "yearly":
+                //    makeFieldNotRequired('HourlyRecurrence', true, true);
+                //    makeFieldNotRequired('DailyRecurrence', true, true);
+                //    //makeFieldNotRequired('RecurEveryWeekday', true, true);
+                //    makeFieldNotRequired('WeeklyRecurrence', true, true);
+                //    makeFieldNotRequired('WeekDay', true, true);
+                //    break;
+                default:
+
+            }
+
+        }
+
+
+
+
+    });
+
+
+
+</script>

@@ -1,0 +1,224 @@
+﻿@*@model List<webServerInventoryDatabase.Models.DatabaseModels.Patching>*@
+@model List<wsPatching.Models.DatabaseModels.PatchingConfig>
+@{
+    var ShowManageButton = ViewBag.ShowManageButton ?? false;
+    //var ParentID = ViewBag.ParentID;
+    List<wsPatching.Models.DatabaseModels.PatchingSource> patchSources = ViewBag.patchSources;
+    List<wsPatching.Models.DatabaseModels.PatchingConfig> patchDetails = ViewBag.patchDetails;
+
+}
+
+
+<html lang="en">
+<head>
+
+
+    <!-- CSS Includes -->
+    <link rel="stylesheet" href="@Url.Content("~/assets/js/plugins/fullcalendar/fullcalendar.min.css")">
+
+    <style type="text/css">
+        /*Shows events multiline in month view*/
+        .fc-day-grid-event > .fc-content {
+            white-space: normal;
+        }
+
+
+        .field-validation-error {
+            color: #ff0000;
+        }
+
+        .fc-time{
+            display : none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="block bg-body shadow-none">
+        @if (Model.Count() > 0)
+        {
+            <div class="form-group form-row">
+                <div class="col-lg-2">
+                    <label>Server Instance</label>
+                    <select id="ddlServerInstance" class="form-control">
+                        @foreach (var s in Model)
+                        {
+                            <option value="@s.Id">@s.Server.Hostname</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        }
+
+    </div>
+    <div class="block block-bordered">
+        <div class="block-header">
+            <h3 class="block-title text-primary"><i class="fa fa-calendar-alt"></i> Patch Schedule</h3>
+            <div class="block-options">
+                @*@if (ShowManageButton)
+                    {
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="ShowPopUpEditor('_ServerPatchingEditor','Server','0','Add Server Patching Schedule','@Model.ObjectId', 'ProcessServerPatching(@Model.ObjectId)');"><i class="fa fa-plus-square mr-1"></i>Add Patching Schedule</button>
+                    }*@
+                <div class="timeline-event-time block-options-item font-size-sm font-w600">
+
+                </div>
+            </div>
+        </div>
+        <div class="block-content">
+
+            @if (Model.Count() > 0)
+            {
+                foreach (var p in Model)
+                {
+                    <div id="div_@p.Id" style="display: none">
+                        <table class="table table-sm">
+                            <tr>
+                                <th width="15%">Patching Name</th>
+                                <td>
+                                    @*<img src="@Url.Content("~/assets-ccf/images/dbtypes/" + db.DatabaseType.DatabaseType + ".png")" alt="@db.DatabaseType.DatabaseType" style="width:32px" />*@
+                                    @p.PatchingName
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Patching Source</th>
+                                <td>@p.PatchingSource.PatchingSource1</td>
+                            </tr>
+                            <tr>
+                                <th>Start Time</th>
+                                <td>@p.StartTime</td>
+                            </tr>
+                            <tr>
+                                <th>End Time</th>
+                                <td>@p.EndTime</td>
+                            </tr>
+                            <tr>
+                                <th>Reboot After Patch</th>
+                                <td>@p.RebootAfterPatch</td>
+                            </tr>
+
+                        </table>
+
+
+
+                    </div>
+                }
+
+            }
+            else
+            {
+                <p>No Patching Schedules Found.</p>
+            }
+
+
+        </div>
+        <div class="block-content">
+            @*<div class="container">*@
+            <div id='calendar'></div>
+            @*</div>*@
+        </div>
+    </div>
+
+    <!-- JS includes -->
+    <script src="@Url.Content("~/assets/js/plugins/moment/moment.min.js")"></script>
+    <script src="@Url.Content("~/assets/js/plugins/fullcalendar/fullcalendar.min.js")"></script>
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            var serverInstances;
+        var svrUrl = getActionURL("GetPatchingConfigs", "Home");
+        //dbInstanceUrl = dbInstanceUrl + "/" + objId;
+        $.ajax({
+        type: "GET",
+        async: false,
+        url: svrUrl,
+        dataType: "json",
+        success: function (obj) {
+            serverInstances = obj;
+        }
+        });
+
+        //InitDatabaseDatatables(dbInstances);
+            ResetServerInstanceGrid(serverInstances);
+            GetPatchingCalendar();
+
+        $("#ddlServerInstance").change(function () {
+            //LoadOSTypeDDL($(this).val());
+            ResetServerInstanceGrid(serverInstances);
+            GetPatchingCalendar();
+        });
+
+
+
+
+				@*$('#calendar').fullCalendar({
+        			header: {
+                        left: 'title prev,next',
+            			center: '',
+                        right: 'month,agendaWeek,agendaDay'
+					},
+                    themeSystem: 'bootstrap4',
+                    firstDay: 0, //The day that each week begins - Sunday=0, Monday=1, Tuesday=2, etc.
+                    slotMinutes: 60,
+                    height: 650,
+                    events: '@Url.Action("GetPatchingCalendar", "Manage", new { id = 1 })'
+
+
+                });*@
+
+
+        });
+
+
+
+                function ResetServerInstanceGrid(instances) {
+        var selected = $("#ddlServerInstance").val();
+
+        for (i = 0; i < instances.length; i++) {
+            //alert(instances[i].Value);
+            //makeFieldHidden(instances[i].Value);
+            if ($('#div_' + instances[i].Value).is(":visible")) {
+                $('#div_' + instances[i].Value).fadeOut(function () {
+                    $('#div_' + selected).fadeIn();
+                });
+                return;
+            };
+        };
+        makeFieldVisible(selected);
+        };
+
+        function GetPatchingCalendar() {
+            //var slctd = $("#ddlServerInstance").val();
+
+            //var opt = $('#ddlServerInstance').val();
+
+            var url = getActionURL("GetAllPatchingCalendar", "Home"); // + "?id=" + opt;
+
+         $.ajax({
+        type: "GET",
+        async: false,
+        url: url,
+        dataType: "json",
+        success: function (obj) {
+            $('#calendar').fullCalendar({
+        			header: {
+                        left: 'title prev,next',
+            			center: '',
+                        right: 'month,agendaWeek,agendaDay'
+					},
+                    themeSystem: 'bootstrap4',
+                    firstDay: 0, //The day that each week begins - Sunday=0, Monday=1, Tuesday=2, etc.
+                    slotMinutes: 60,
+                    height: 650,
+                    events: obj
+
+
+                });
+        }
+        });
+            			
+        }
+    </script>
+</body>
+</html>
