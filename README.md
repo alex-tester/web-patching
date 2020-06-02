@@ -24,10 +24,17 @@ The scripts in the PowerShell folder should be copied to a central location whic
 ### IIS
 Configure appsettings.json for your environment. The most important options are the database connection string, "UseLocalPatchScript" to define whether the scripts are executed from a local or file share path, and the local/file share paths where the scripts will be located. The VMwareToolsInstallPath is optional and refers to the network share location where the VMware Tools Installer is located.
 ### Docker
+The Docker image is available on DockerHub, or you can build your own.
+[https://hub.docker.com/r/tester010/wspatching/](https://hub.docker.com/r/tester010/wspatching/)
+
+You can get the image by executing **docker pull tester010/wspatching:release**
+
 Modify the docker-environment-vars file from the **Docker** folder to define the application settings outlined above and start the container using the parameter **--env-file docker-environment-vars** to configure the settings for your environment.
 
+By default the Docker image serves http requests on port 80, but can be overridden using standard ASPNETCORE environment variables.
+
 # Deployment
-Open the CreateDatabaseSchema.ps1 file from the PowerShell folder, and configure the variables for your SQL Instance/Database path. Execute the script to create the database schema required by the application.
+Open the **CreateDatabaseSchema.ps1** file from the **PowerShell** folder, and configure the variables for your SQL Instance/Database path. Execute the script to create the database schema required by the application.
 
 Deploy the application via IIS or Docker using the configuration options mentioned above, and test that the application settings are correct by issuing an HTTP GET request to http://[ApplicationBaseUrl]/api/GetPatchingInitializationSettings
 
