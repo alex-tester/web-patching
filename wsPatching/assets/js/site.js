@@ -106,6 +106,75 @@ function ShowPopUpDelete(viewName, controller, objectID, objectName, reloadViewN
     });
 }
 
+function ShowPopUpDeleteDynamic(viewName, controller, objectID, objectName, reloadViewName, reloadControllerName, UseId, reloadObjectID, reloadEntireView) {
+    swal({
+        title: 'Are you sure?',
+        text: 'Do you really want to delete <b> ' + objectName + '</b>?',
+        type: 'question',
+        showCancelButton: true,
+        confirmButtonClass: 'btn btn-outline-danger m-1',
+        cancelButtonClass: 'btn btn-outline-secondary m-1',
+        confirmButtonText: 'Yes, delete it!',
+        html: 'Do you really want to delete <br><br><b> ' + objectName + '</b>?<br><br>',
+        preConfirm: function (e) {
+            return new Promise(function (resolve) {
+                setTimeout(function () {
+                    resolve();
+                }, 50);
+            });
+        }
+    }).then(function (result) {
+        //debugger;
+        if (UseId == true) {
+            var pData = { id: objectID, ParentId: reloadObjectID };
+        }
+        else {
+            var pData = { id: objectID };
+        }
+
+        if (result.value) {
+            var url = getActionURL(viewName, controller);
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: pData,
+                success: function (result) {
+                    if (result.failure) {
+                        ShowPopUpUserError(result.message);
+                    }
+                    else if (result === false) { //default message if we havent defined the failure reason
+
+                        ShowPopUpUserError('Something went wrong when attempting to delete. Please contact the site admin for assistance.');
+                    }
+                    else {
+                        if (reloadEntireView) {
+                            //full view reload
+                            var reloadUrl = getActionURL(reloadViewName, reloadControllerName);
+                            if (UseId) {
+                                reloadUrl = reloadUrl + "/" + reloadObjectID;
+                            }
+                            window.location = reloadUrl;
+                        }
+                        else {
+                            LoadPageBody(reloadViewName, reloadControllerName, UseId, reloadObjectID);
+                        }
+                        ShowPopUpSuccessWithTimer('Deleted!', '<b>' + objectName + '</b> has been deleted.');
+                        //swal('Deleted!', '<b>' + objectName + '</b> has been deleted.', 'success');
+
+
+                    }
+                },
+                failure: function (result) {
+                }
+            });
+
+            // result.dismiss can be 'overlay', 'cancel', 'close', 'esc', 'timer'
+        } else if (result.dismiss === 'cancel') {
+            //swal('Cancelled', 'Your imaginary file is safe :)', 'error');
+        }
+    });
+}
+
 function ShowPopUpUserError(htmlMessage) {
     swal({
         title: 'Failed!',
@@ -166,6 +235,33 @@ function ShowPopUpEditorDynamic(viewName, controller, objectID, objectType, Proc
     $(modal).modal('show');
 }
 
+function ShowPopUpEditorDynamicWithViewReload(viewName, controller, objectID, objectType, ProcessMethod, ProcessController, ReloadAction, ReloadController, useId, Id, reloadEntireView) {
+    //get modal object from DOM
+    modal = $('#globalContentModal');
+
+    $('#contentModalTitleText').text(objectType);
+
+    //debugger;
+    $('#saveBtnModelContent').attr("onclick", "ProcessFormDynamicWithViewReload('" + ProcessMethod + "','" + ProcessController + "','" + ReloadAction + "','" + ReloadController + "','" + useId + "','" + Id + "','" + reloadEntireView + "')");
+    var url = getActionURL(viewName, controller);
+    url = url + "/" + objectID
+    if (useId) {
+        url = url + "?ParentId=" + Id;
+    }
+
+    $('#contentModalContent').load(url);
+
+
+    $(modal).modal({
+        backdrop: 'static',
+        keyboard: false
+    });
+
+
+
+    $(modal).modal('show');
+}
+
 function ProcessForm(Action, Controller, ReloadAction, ReloadController, UseId, Id) {
     
     if ($("#frmEditor").valid()) {
@@ -209,6 +305,76 @@ function ProcessForm(Action, Controller, ReloadAction, ReloadController, UseId, 
                 }
                 
                 
+            },
+            fail: function (data) {
+                alert("fail");
+            }
+        });
+    }
+
+}
+
+function ProcessFormDynamicWithViewReload(Action, Controller, ReloadAction, ReloadController, UseId, Id, reloadEntireView) {
+
+    if ($("#frmEditor").valid()) {
+
+        var url = getActionURL(Action, Controller);
+        var fData = $("#frmEditor").serialize();
+
+        $("#frmEditor").submit(function (e) {
+            e.preventDefault();
+        });
+
+
+        $.ajax({
+
+            type: 'POST',
+            url: url,
+            data: fData,
+            success: function (result) {
+                //debugger;
+                if (!result.failure) {
+                    ClosePopupEditor();
+
+                    if (UseId) {
+                        if (Id == 'new') {
+                            var newId = result.id;
+                            if (reloadEntireView) {
+                                var reloadUrl = getActionURL(ReloadAction, ReloadController) + "/" + newId;
+                                window.location = reloadUrl;
+                            }
+                            else {
+                                LoadPageBody(ReloadAction, ReloadController, true, newId);
+                            }
+                        }
+                        else {
+                            if (reloadEntireView) {
+                                var reloadUrl = getActionURL(ReloadAction, ReloadController) + "/" + Id;
+                                window.location = reloadUrl;
+                            }
+                            else {
+                                LoadPageBody(ReloadAction, ReloadController, UseId, Id);
+                            }
+                        }
+
+                    }
+                    else {
+                        if (reloadEntireView) {
+                            var reloadUrl = getActionURL(ReloadAction, ReloadController);
+                            window.location = reloadUrl;
+                        }
+                        else {
+                            LoadPageBody(ReloadAction, ReloadController, false, Id);
+                        }
+                    }
+                    ShowPopUpSuccessWithTimer("Success!", "Your changes have been saved.");
+                }
+                else {
+                    //swal.close();
+                    ShowPopUpUserError(result.message);
+                }
+
+
             },
             fail: function (data) {
                 alert("fail");
@@ -490,6 +656,10 @@ function InitLargeSelect2DDL(list, select2element, pageSize) {
         });
 
 }
+
+
+
+
 
 function InitScriptEditorFromController(fieldName, qaScriptId, readOnly) {
     require.config({ paths: { 'vs': '../assets-external/Monaco/vs' } });

@@ -26,7 +26,7 @@ using wsPatching.Models.CustomModels;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Data.Entity.Validation;
 using System.Web.Helpers;
-
+using System.Threading.Tasks;
 
 namespace wsPatching.Controllers
 {
@@ -75,6 +75,19 @@ namespace wsPatching.Controllers
 
             ViewBag.patchDetails = patchDetails;
 
+            List<SelectListItem> unscheduledResult = new List<SelectListItem>();
+
+
+            foreach (var s in model)
+            {
+                if (patchDetails.Where(x => x.ServerId == s.Id).Count() == 0)
+                {
+                    unscheduledResult.Add(new SelectListItem { Text = s.Hostname, Value = s.Id.ToString() });
+                }
+            }
+
+            ViewBag.unscheduledServers = unscheduledResult.OrderBy(x => x.Text).ToList();
+
             return PartialView(patchDetails);
         }
 
@@ -119,6 +132,47 @@ namespace wsPatching.Controllers
             return Json(events.ToArray()); //, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost]  //Delete
+        public async Task<JsonResult> DeletePatchConfigAndServerByServerId(string id)
+        {
+            Scheduling sch = new Scheduling();
+            bool historyDeleted = await sch.DeletePatchingHistoryByServerId(Convert.ToInt32(id));
+            if (!historyDeleted) //something went wrong
+            {
+                return Json(new { failure = true, message = "Something went wrong when deleting patching history." });
+            }
+
+            bool configDeleted = await sch.DeletePatchingConfigurationByServerId(Convert.ToInt32(id));
+            if (!configDeleted) //something went wrong
+            {
+                return Json(new { failure = true, message = "Something went wrong when deleting patching config." });
+            }
+
+            bool serverDeleted = await sch.DeleteServerObjectByServerId(Convert.ToInt32(id));
+            if (!serverDeleted) //something went wrong
+            {
+                return Json(new { failure = true, message = "Something went wrong when deleting server object." });
+            }
+
+            return Json(new { result = true });
+
+        }
+
+        [HttpPost]  //Delete
+        public async Task<JsonResult> DeleteServerByServerId(string id)
+        {
+            Scheduling sch = new Scheduling();
+
+            bool serverDeleted = await sch.DeleteServerObjectByServerId(Convert.ToInt32(id));
+            if (!serverDeleted) //something went wrong
+            {
+                return Json(new { failure = true, message = "Something went wrong when deleting server object." });
+            }
+
+            return Json(new { result = true });
+
+        }
+
         //Scheduling sch = new Scheduling();
         //var ps = sch.GetPatchingSchedule(Convert.ToInt32(id));
         //var events = new List<CalendarEvent>();
@@ -149,7 +203,7 @@ namespace wsPatching.Controllers
         //}
 
         //return Json(events.ToArray()); //, JsonRequestBehavior.AllowGet);
-    
+
 
 
 
