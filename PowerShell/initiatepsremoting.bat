@@ -1,0 +1,1 @@
+echo . | powershell c:\temp\enablepsremoting.ps1

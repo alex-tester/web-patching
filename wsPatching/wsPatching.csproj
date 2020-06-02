@@ -9,6 +9,7 @@
         <CopyRefAssembliesToBuildDirectory>true</CopyRefAssembliesToBuildDirectory>
         <AssemblyName>wsPatching</AssemblyName>
         <RootNamespace>wsPatching</RootNamespace>
+        <EnableDefaultContentItems>false</EnableDefaultContentItems>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+
     <Content Include="assets\js\site.js">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
@@ -54,13 +56,22 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.1" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="5.6.0" />
     <PackageReference Include="Microsoft.NETCore.App" Version="2.2.7" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.3" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="Telerik.Web.UI">
       <HintPath>DLL\Telerik.Web.UI.dll</HintPath>
     </Reference>
+     <Content Include="assets\**"> 
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory> 
+  </Content> 
+  <Content Include="Views\**"> 
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory> 
+  </Content> 
+    <Content Include="appsettings*"> 
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory> 
+  </Content> 
   </ItemGroup>
 
 

@@ -10,7 +10,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="bg-body-light">
+@*<div class="bg-body-light">
     <div class="content content-full">
         <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
             <h1 class="flex-sm-fill h3 my-2" id="div_PageNameHeader">
@@ -19,17 +19,10 @@
             <nav class="flex-sm-00-auto ml-sm-3" aria-label="breadcrumb">
                 <ol class="breadcrumb breadcrumb-alt">
                     <li class="breadcrumb-item">
-                        <a class="link-fx" href="@Url.Action("Index", "Manage")">Manage Standards</a>
+                        <a class="link-fx" href="@Url.Action("Index", "Home")">Home</a>
                     </li>
-
-                    <li class="breadcrumb-item" aria-current="page">
-                        <select class="breadcrumb-item breadcrumb-select" id="myViewSelector" name="myViewSelector">
-                            <option value="Standard">Standard Tables</option>
-                            <option value="StandardGroupModel">Standard Groups</option>
-                            <option value="StandardDataType">Standard Data Types</option>
-
-                        </select>
-
+                    <li class="breadcrumb-item">
+                        <a class="link-fx" href="@Url.Action("Index", "Manage")">Manage</a>
                     </li>
 
                 </ol>
@@ -38,12 +31,11 @@
         </div>
         <div class="form-group form-row">
             <div class="col-lg-2">
-                @*<label>Search</label>*@
-                @*<button type="button" id="btnRDP" class="form-control btn btn-sm btn-outline-primary" onclick="location.href='@Url.Action("GenerateRDPFile", "Server", new { Hostname = Model.HostName })'"><i class="fa fa-desktop"></i> Remote Desktop</button>*@
+               
             </div>
         </div>
     </div>
-</div>
+</div>*@
 
 
 <div id="MainBody">

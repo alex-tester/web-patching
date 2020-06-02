@@ -13,34 +13,21 @@
     <div class="content content-full">
         <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
             <h1 class="flex-sm-fill h3 my-2" id="div_StatusTitle">
-                Manage Patching <small id="div_StatusDescription" class="d-block d-sm-inline-block mt-2 mt-sm-0 font-size-base font-w400 text-muted">  Click on the blocks below for more info about each value.</small>
+                Manage Patching <small id="div_StatusDescription" class="d-block d-sm-inline-block mt-2 mt-sm-0 font-size-base font-w400 text-muted">  </small>
             </h1>
 
-            <ol class="breadcrumb breadcrumb-alt">
+            @*<ol class="breadcrumb breadcrumb-alt">
                 <li class="breadcrumb-item">
                     <a class="link-fx" href="@Url.Action("Index", "Home")">Home</a>
                 </li>
-                @*<li class="breadcrumb-item">
-                        <a class="link-fx" href="@Url.Action("Index", "SystemStatus")">System Status</a>
-                    </li>*@
 
-                @*<li class="breadcrumb-item" aria-current="page">
-                        <select class="breadcrumb-item breadcrumb-select" id="myViewSelector" name="myViewSelector">
-                            <option value="_VMware">VMware</option>
 
-                        </select>
-
-                    </li>*@
-
-            </ol>
+            </ol>*@
 
 
         </div>
         <div class="form-group form-row">
-            @*<div class="col-lg-2">
 
-                    <button type="button" id="btnRDP" class="form-control btn btn-sm btn-outline-primary" onclick="location.href='@Url.Action("GenerateRDPFile", "Server", new { Hostname = Model.HostName })'"><i class="fa fa-desktop"></i> Remote Desktop</button>
-                </div>*@
         </div>
     </div>
 </div>
@@ -60,25 +47,23 @@
 </div>
         </div>
 <div id="pageBody">
-    <h2>Manage Standards Framework</h2>
-    <br />
-    <br />
-    <div class="row">
-        <div class="col-lg-3">
-            <p>Manage Standards Infrastucture.  Click on the links below.</p>
-            <a href="@Url.Action("Schedule", "Manage")">
-                Manage Schedules
-            </a>
-            <br />
-        </div>
-        <div class="col-lg-3">
-
-        </div>
-    </div>
-
-
-    <br />
-
-    <br />
-    <br />
+  
 </div>
+
+
+<script type="text/javascript">
+    jQuery(function ($) {
+        //highlightNavMenu("Manage");
+        $("#div_PageNameHeader").html("Manage Patching");
+        $('#nav_systemstatusparent').addClass('open');
+
+  
+        //always redirect to create new
+        var redirUrl = getActionURL("Schedule", "Manage");
+        window.location = redirUrl;
+
+    });
+
+
+
+</script>

@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Newtonsoft.Json;
 using AutoMapper;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 
 namespace AutomationStandards
 {
@@ -58,13 +60,13 @@ namespace AutomationStandards
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                AutomationStandardsContext.ConnectionString = Configuration.GetConnectionString("AutomationStandardsTest");
+              
 
 
             }
             else
             {
-                AutomationStandardsContext.ConnectionString = Configuration.GetConnectionString("AutomationStandardsProd");
+              
                 app.UseExceptionHandler("/Home/Error");
             }
 
@@ -74,6 +76,13 @@ namespace AutomationStandards
             app.UseMvc();
 
             app.UseStaticFiles();
+
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(
+                Path.Combine(Directory.GetCurrentDirectory(), "assets")),
+                RequestPath = "/assets"
+            });
 
             app.UseRouting();
 

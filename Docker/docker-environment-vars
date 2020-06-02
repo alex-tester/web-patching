@@ -1,0 +1,7 @@
+InstallationSettings__PatchingNetworkShare="\\\\fs0\\data\\publishedapps\\wspatching"
+InstallationSettings__UseLocalPatchScript=true
+InstallationSettings__LocalPatchingPath="C:\\temp\\nesteddir\\web-patching"
+InstallationSettings__PatchingScriptName="patch-initiator.ps1"
+InstallationSettings__ScheduledTaskName="Patching Automation"
+InstallationSettings__VMwareToolsInstallPath="\\\\fs0\\data\\Packages\\vmware\\tools\\6.7u3\\VMware-tools-10.3.10-12406962-x86_64.exe"
+ConnectionStrings__PatchingAutomationDb="Server=SQL03.observicing.net;Database=PatchingAutomation;User Id=patching_automation_db_service;Password=Changeme123#;"

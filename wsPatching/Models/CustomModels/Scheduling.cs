@@ -65,7 +65,7 @@ namespace wsPatching.Models.CustomModels
                 }
                 catch
                 {
-                    svr.Hostname = "na";
+                    return new ServerObject() { Hostname = "na", Id = 0 };
                 }
             }
 
@@ -149,6 +149,49 @@ namespace wsPatching.Models.CustomModels
                 catch
                 {
                     return new ServerObject() { Id = 0 };
+                }
+            }
+        }
+
+        public List<PatchingExecution> GetPatchingExecutionHistoryByServerId(int id)
+        {
+            List<PatchingExecution> result = new List<PatchingExecution>();
+            if (id == 0)
+            {
+                return result;
+            }
+            else
+            {
+                PatchingAutomationContext db = new PatchingAutomationContext();
+                try
+                {
+                    //var svr = (from s in db.PatchingExecution
+                    //           where s.Id == id
+                    //           select s).First();
+                    //var patchingSource = db.PatchingSource.Where(x => x.Id == patchingSchedule.PatchingSourceId).First();
+                    //patchingSchedule.PatchingSource = patchingSource;
+                    result = db.PatchingExecution.Where(x => x.ServerId == id).ToList();
+                    foreach (var h in result)
+                    {
+                        h.PatchingResults = db.PatchingResults.Where(x => x.PatchingExecutionId == h.Id).ToList();
+                        foreach (var n in h.PatchingResults)
+                        {
+                            n.PatchingExecution = null;
+                            n.Server = null;
+                        }
+                        h.PatchingAvailablePatches = db.PatchingAvailablePatches.Where(x => x.PatchingExecutionId == h.Id).ToList();
+                        foreach (var n in h.PatchingAvailablePatches)
+                        {
+                            n.PatchingExecution = null;
+                            n.Server = null;
+                        }
+                    }
+                    return result;
+
+                }
+                catch
+                {
+                    return result;
                 }
             }
         }
@@ -401,6 +444,82 @@ namespace wsPatching.Models.CustomModels
 
 
             return result.OrderBy(x => x.StartTime).Take(100).ToList();
+        }
+
+        public async Task<bool> DeleteServerObjectByServerId(int id)
+        {
+            PatchingAutomationContext db = new PatchingAutomationContext();
+
+            //delete Server Object
+            try
+            {
+                db.ServerObject.Remove(await db.ServerObject.FindAsync(id));
+                await db.SaveChangesAsync();
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public async Task<bool> DeletePatchingConfigurationByServerId(int id)
+        {
+            PatchingAutomationContext db = new PatchingAutomationContext();
+            
+            //delete patch config 
+            try
+            {
+                db.PatchingConfig.RemoveRange(db.PatchingConfig.Where(x => x.ServerId == id));
+                await db.SaveChangesAsync();
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public async Task<bool> DeletePatchingHistoryByServerId(int id)
+        {
+            PatchingAutomationContext db = new PatchingAutomationContext();
+
+            //delete available patch history first
+            try
+            {
+                db.PatchingAvailablePatches.RemoveRange(db.PatchingAvailablePatches.Where(x => x.ServerId == id));
+                await db.SaveChangesAsync();
+            }
+            catch
+            {
+                return false;
+            }
+
+            //delete installed patch history second
+            try
+            {
+                db.PatchingResults.RemoveRange(db.PatchingResults.Where(x => x.ServerId == id));
+                await db.SaveChangesAsync();
+            }
+            catch
+            {
+                return false;
+            }
+
+            //delete patch execution history third
+            try
+            {
+                db.PatchingExecution.RemoveRange(db.PatchingExecution.Where(x => x.ServerId == id));
+                await db.SaveChangesAsync();
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
         }
 
        

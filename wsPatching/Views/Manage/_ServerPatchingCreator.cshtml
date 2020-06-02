@@ -4,7 +4,7 @@
 
     List<SelectListItem> patchingSourceList = ((List<PatchingSource>)ViewBag.patchSources).Select(x => new SelectListItem { Text = x.PatchingSource1, Value = x.Id.ToString() }).ToList();
 
-    //List<SelectListItem> serverList = ((List<ServerObject>)ViewBag.serverList).Select(x => new SelectListItem { Text = x.Hostname, Value = x.Id.ToString() }).ToList();
+
 
     List<SelectListItem> serverListEmpty = new List<SelectListItem>();
     serverListEmpty.Add(new SelectListItem() { Text = "", Value = "" });
@@ -31,13 +31,11 @@
     weeksOfMonth.Add(new SelectListItem() { Value = "4", Text = "Fourth" });
     weeksOfMonth.Add(new SelectListItem() { Value = "5", Text = "Last" });
 
-    bool isNewPatchingConfig = @Model.PatchingID == 0;
+
 
 
 }
-@*<link rel="stylesheet" href="@Url.Content("~/assets/js/plugins/bootstrap-datetimepicker/bootstrap-datetimepicker.css")">
-<script src="@Url.Content("~/assets/js/plugins/moment/moment.min.js")"></script>
-<script src="@Url.Content("~/assets/js/plugins/bootstrap-datetimepicker/bootstrap-datetimepicker.js")"></script>*@
+
 
 
 <form id="frmEditor" class="js-validation" method="POST">
@@ -46,34 +44,9 @@
 
         <input type="hidden" id="PatchingID" name="PatchingID" value="@Model.PatchingID" />
 
-        @*NEED TO SET THIS TO DISABLED IF WE HAVE AN ACTUAL OBJECT ID*@
-        @*@Html.EditorFor(x => x.ObjectID, "_FieldEditor", "ObjectID", new { FieldType = "Dropdown", FieldLabel = "Server", Required = true, showHelp = true, helpMessage = "Select the server", List = serverList })
-
-            <select class="form-control js-select2" id="ObjectId"></select>*@
-
-        @if (isNewPatchingConfig)
-        {
-            <div class="form-group row" id="div_ObjectId">
-                <label class="col-sm-4 col-form-label" for=ObjectId>
-
-                    Host Name &nbsp&nbsp<i id="req_ObjectId" class="fa fa-xs fa-asterisk text-primary"></i>
-                    <span>&nbsp;&nbsp;</span><i id="help_ObjectId" class="fa fa-xs fa-question-circle text-black obs-info-icon" data-toggle="popover" data-trigger="hover" data-placement="right" data-html="true" data-animation="true" data-content="@Html.Raw("The server must be provisioned by the patching script before it will exist in this list")"></i>
-                </label>
-                <div class="col-sm-7">
-
-                    <select class="form-control js-select2" id="ObjectId" name="ObjectId" required data-placeholder="Select a server">
-                        <option></option>
-
-                    </select>
-
-                </div>
-            </div>
-        }
-        else
-        {
             <input type="hidden" id="ObjectId" name="ObjectId" value="@Model.ObjectID" />
             @Html.EditorFor(x => x.HostName, "_FieldEditor", "HostName", new { FieldType = "Textbox", FieldLabel = "Host Name", Required = false, showHelp = false, helpMessage = "", RegExp = "", MaxLength = 50, FieldDisabled = true })
-        }
+
 
         @Html.EditorFor(x => x.PatchingSourceID, "_FieldEditor", "PatchingSourceID", new { FieldType = "Dropdown", FieldLabel = "Patching Source", Required = true, showHelp = true, helpMessage = "Select the tool used for Patch Management", List = patchingSourceList })
 
@@ -122,68 +95,18 @@
 
 </form>
 
-<div id="validationFailure" class="invalid-feedback animated fadeIn text-right offset-sm-3 col-sm-7" style="display: none;"></div>
+
 
 <script>
 
-             function LoadServersList() {
-
-            $.ajax({
-
-                type: "GET",
-
-                async: false,
-
-                cache: true,
-
-                url: getActionURL("GetAllUnscheduledServers", "Manage"),
-
-                dataType: "json",
-
-                success: function (obj) {
-                    //debugger;
-                    InitLargeSelect2DDL(obj, 'ObjectId', 50);
-                }
-
-            });
-
-
-
-
-    }
-
-
-//}
-//    function InitScriptEditor(fieldName, readOnly) {
-
-//        window.editor = monaco.editor.create(document.getElementById(fieldName), {
-//            value: "hmm",
-//            language: 'powershell',
-//            theme: 'vs-dark',
-//            minimap: {
-//                enabled: false
-//            },
-//            readOnly: readOnly,
-//            automaticLayout: true,
-//            scrollBeyondLastLine: false
-
-//        });
-   
-
-//}
-
-
+           
     $(document).ready(function () {
 
-        var newConfig = '@isNewPatchingConfig';
 
         $("#frmEditor").submit(function (e) {
             e.preventDefault();
         });
-        if (newConfig == "True") {
-            LoadServersList();
-        }
-        //InitLargeSelect2DDL(, 'ObjectId', 50);
+
 
         initValidationHorizontal();
 
